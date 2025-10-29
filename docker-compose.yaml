@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  localstack:
+    image: localstack/localstack:latest
+    container_name: atc-localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3,rds,dynamodb,apigateway
+      - DATA_DIR=/tmp/localstack/data
+    # For now we won't persist data between restarts but this is how you would do it
+    # volumes:
+    #   - "./localstack_data:/tmp/localstack"
+    #   - "/var/run/docker.sock:/var/run/docker.sock"
