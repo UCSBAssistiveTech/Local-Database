@@ -9,7 +9,18 @@ services:
     environment:
       - SERVICES=s3,rds,apigateway
       - DATA_DIR=/tmp/localstack/data
-    # For now we won't persist data between restarts but this is how you would do it
-    # volumes:
-    #   - "./localstack_data:/tmp/localstack"
-    #   - "/var/run/docker.sock:/var/run/docker.sock"
+
+    # dummy postgres instance sits behind localstack rds service because it doesnt actually simulate a db
+    postgres:
+      image: postgres:15
+      container_name: atc-postgres
+      environment:
+        POSTGRES_USER: test
+        POSTGRES_PASSWORD: test
+        POSTGRES_DB: postgrestest
+      ports:
+        - "5432:5432"
+      
+      ## No persistence for now
+      # volumes:
+      #   - pgdata:/var/lib/postgresql/data
