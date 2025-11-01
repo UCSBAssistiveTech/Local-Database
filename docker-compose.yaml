@@ -7,7 +7,7 @@ services:
     ports:
       - "4566:4566"
     environment:
-      - SERVICES=s3,rds,dynamodb,apigateway
+      - SERVICES=s3,rds,apigateway
       - DATA_DIR=/tmp/localstack/data
     # For now we won't persist data between restarts but this is how you would do it
     # volumes:
