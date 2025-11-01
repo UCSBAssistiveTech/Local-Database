@@ -1,8 +1,10 @@
+# TODO: Implement fastapi entry in main.py 
+
 from flask import Flask, request, jsonify, render_template_string
 import os
 import logging
 from werkzeug.utils import secure_filename
-from base import upload_to_s3, create_S3_client
+from app.s3.upload import upload_to_s3, create_S3_client
 import boto3
 from botocore.exceptions import ClientError
 
