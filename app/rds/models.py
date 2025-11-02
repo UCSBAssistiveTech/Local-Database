@@ -8,7 +8,7 @@ class Patient(Base):
 
     __tablename__ = 'patients'
 
-    id = Column(Integer, primary_key=True, Index=True)
+    id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
     age = Column(Integer, nullable=False)
 
@@ -19,7 +19,7 @@ class Exam(Base):
 
     __tablename__ = 'exams'
 
-    id = Column(Integer, primary_key=True, Index=True)
+    id = Column(Integer, primary_key=True, index=True)
     reaction_time = Column(Float, nullable=False)
     pupil_dialation = Column(Float, nullable=False)
     eye_velocity = Column(Float, nullable=False)
