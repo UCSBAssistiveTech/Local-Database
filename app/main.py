@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from app.rds.db import engine
-import app.rds.models as models
+from rds.db import engine
+import rds.models as models
 
 import uvicorn
 
