@@ -1,4 +1,4 @@
-# TODO: Implement fastapi entry in main.py 
+# TODO: refactor flask to same fastapi server as rds
 
 from flask import Flask, request, jsonify, render_template_string
 import os

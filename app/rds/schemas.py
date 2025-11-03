@@ -4,11 +4,8 @@ class PatientBase(BaseModel):
     name: str
     age: int
 
-class PateintRead(PatientBase):
+class PatientInteract(PatientBase):
     id: int
-    class Config:
-        orm_mode = True
-
 
 class ExamBase(BaseModel):
     reaction_time: float
@@ -16,7 +13,5 @@ class ExamBase(BaseModel):
     eye_velocity: float
     patient_id: int
 
-class ExamRead(ExamBase):
+class ExamInteract(ExamBase):
     id: int
-    class Config:
-        orm_mode = True
