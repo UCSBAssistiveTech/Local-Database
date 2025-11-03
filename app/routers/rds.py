@@ -4,7 +4,7 @@ from typing import List
 
 from rds.db import inject_session
 from rds import crud
-from rds.schemas import PatientBase, PatientRead, PatientInteract, ExamBase, ExamRead, ExamInteract
+from rds.schemas import PatientBase, PatientInteract, PatientRead, ExamBase, ExamInteract, ExamRead
 
 router = APIRouter(prefix="/rds", tags=["rds"])
 
