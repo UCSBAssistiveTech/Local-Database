@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Database Operations</title>
+    <style>
+        body {
+            display: flex;
+            font-family: Arial;
+            margin: 20px;
+        }
+
+        .operations {
+            flex: 1;
+        }
+
+        .queries {
+            flex: 1;
+            margin-left: 20px;
+        }
+
+        .form-group {
+            margin: 10px 0;
+        }
+
+        input {
+            margin: 5px 0;
+            padding: 5px;
+        }
+
+        button {
+            margin: 5px 0;
+            padding: 5px 10px;
+        }
+
+        .operation,
+        .query-section {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+
+        .json-key {
+            color: #881391;
+        }
+
+        .json-string {
+            color: #067D17;
+        }
+
+        .json-number {
+            color: #0000FF;
+        }
+
+        .query-result {
+            margin-top: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="operations">
+        <h2>Operations</h2>
+
+        <!-- Patient Operations -->
+        <div class="operation">
+            <h3>Create Patient</h3>
+            <div class="form-group">
+                <input type="text" id="createPatientName" placeholder="Name">
+                <input type="number" id="createPatientAge" placeholder="Age">
+                <button onclick="createPatient()">Create</button>
+            </div>
+        </div>
+
+        <div class="operation">
+            <h3>Update Patient</h3>
+            <div class="form-group">
+                <input type="number" id="updatePatientId" placeholder="Patient ID">
+                <input type="text" id="updatePatientName" placeholder="New Name">
+                <input type="number" id="updatePatientAge" placeholder="New Age">
+                <button onclick="updatePatient()">Update</button>
+            </div>
+        </div>
+
+        <div class="operation">
+            <h3>Delete Patient</h3>
+            <div class="form-group">
+                <input type="number" id="deletePatientId" placeholder="Patient ID">
+                <button onclick="deletePatient()">Delete</button>
+            </div>
+        </div>
+
+        <!-- Exam Operations -->
+        <div class="operation">
+            <h3>Create Exam</h3>
+            <div class="form-group">
+                <input type="number" id="createExamPatientId" placeholder="Patient ID">
+                <input type="number" id="createExamReactionTime" placeholder="Reaction Time" step="0.01">
+                <input type="number" id="createExamPupilDialation" placeholder="Pupil Dialation" step="0.01">
+                <input type="number" id="createExamEyeVelocity" placeholder="Eye Velocity" step="0.01">
+                <button onclick="createExam()">Create</button>
+            </div>
+        </div>
+
+        <div class="operation">
+            <h3>Update Exam</h3>
+            <div class="form-group">
+                <input type="number" id="updateExamId" placeholder="Exam ID">
+                <input type="number" id="updateExamPatientId" placeholder="Patient ID">
+                <input type="number" id="updateExamReactionTime" placeholder="Reaction Time" step="0.01">
+                <input type="number" id="updateExamPupilDialation" placeholder="Pupil Dialation" step="0.01">
+                <input type="number" id="updateExamEyeVelocity" placeholder="Eye Velocity" step="0.01">
+                <button onclick="updateExam()">Update</button>
+            </div>
+        </div>
+
+        <div class="operation">
+            <h3>Delete Exam</h3>
+            <div class="form-group">
+                <input type="number" id="deleteExamId" placeholder="Exam ID">
+                <button onclick="deleteExam()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="queries">
+        <h2>Query Operations</h2>
+
+        <!-- Patient Queries -->
+        <div class="query-section">
+            <h3>Patient Queries</h3>
+            <div class="form-group">
+                <button onclick="getAllPatients()">Get All Patients</button>
+            </div>
+            <div class="form-group">
+                <input type="number" id="queryPatientId" placeholder="Patient ID">
+                <button onclick="getPatientById()">Get Patient by ID</button>
+            </div>
+            <div id="patientQueryResult" class="query-result"></div>
+        </div>
+
+        <!-- Exam Queries -->
+        <div class="query-section">
+            <h3>Exam Queries</h3>
+            <div class="form-group">
+                <button onclick="getAllExams()">Get All Exams</button>
+            </div>
+            <div class="form-group">
+                <input type="number" id="queryExamId" placeholder="Exam ID">
+                <button onclick="getExamById()">Get Exam by ID</button>
+            </div>
+            <div class="form-group">
+                <input type="number" id="queryExamsByPatientId" placeholder="Patient ID">
+                <button onclick="getExamsByPatientId()">Get Patient's Exams</button>
+            </div>
+            <div id="examQueryResult" class="query-result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/rds';
+
+        // Initial load of all data
+        document.addEventListener('DOMContentLoaded', () => {
+            getAllPatients();
+            getAllExams();
+        });
+
+        function formatJSON(obj) {
+            return JSON.stringify(obj, null, 2)
+                .replace(/:\s*"([^"]+)"/g, ': <span class="json-string">"$1"</span>')
+                .replace(/"([^"]+)":/g, '<span class="json-key">"$1"</span>:')
+                .replace(/\b(\d+(\.\d+)?)\b/g, '<span class="json-number">$1</span>');
+        }
+
+        async function displayQueryResult(data, elementId) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<pre>${formatJSON(data)}</pre>`;
+        }
+
+        // Patient Query Operations
+        async function getAllPatients() {
+            try {
+                const response = await fetch(`${API_BASE}/patients`);
+                const patients = await response.json();
+                await displayQueryResult(patients, 'patientQueryResult');
+            } catch (error) {
+                console.error('Error fetching patients:', error);
+            }
+        }
+
+        async function getPatientById() {
+            const id = document.getElementById('queryPatientId').value;
+            try {
+                const response = await fetch(`${API_BASE}/patients/${id}`);
+                const patient = await response.json();
+                await displayQueryResult(patient, 'patientQueryResult');
+            } catch (error) {
+                console.error('Error fetching patient:', error);
+            }
+        }
+
+        // Exam Query Operations
+        async function getAllExams() {
+            try {
+                const response = await fetch(`${API_BASE}/exams`);
+                const exams = await response.json();
+                await displayQueryResult(exams, 'examQueryResult');
+            } catch (error) {
+                console.error('Error fetching exams:', error);
+            }
+        }
+
+        async function getExamById() {
+            const id = document.getElementById('queryExamId').value;
+            try {
+                const response = await fetch(`${API_BASE}/exams/${id}`);
+                const exam = await response.json();
+                await displayQueryResult(exam, 'examQueryResult');
+            } catch (error) {
+                console.error('Error fetching exam:', error);
+            }
+        }
+
+        async function getExamsByPatientId() {
+            const patientId = document.getElementById('queryExamsByPatientId').value;
+            try {
+                const response = await fetch(`${API_BASE}/patients/${patientId}/exams`);
+                const exams = await response.json();
+                await displayQueryResult(exams, 'examQueryResult');
+            } catch (error) {
+                console.error('Error fetching patient exams:', error);
+            }
+        }
+
+        async function createPatient() {
+            const name = document.getElementById('createPatientName').value;
+            const age = parseInt(document.getElementById('createPatientAge').value);
+
+            try {
+                await fetch(`${API_BASE}/patients`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, age })
+                });
+                document.getElementById('createPatientName').value = '';
+                document.getElementById('createPatientAge').value = '';
+                await getAllPatients();
+            } catch (error) {
+                console.error('Error creating patient:', error);
+                alert('Failed to create patient');
+            }
+        }
+
+        async function updatePatient() {
+            const id = parseInt(document.getElementById('updatePatientId').value);
+            const name = document.getElementById('updatePatientName').value;
+            const age = parseInt(document.getElementById('updatePatientAge').value);
+
+            try {
+                await fetch(`${API_BASE}/patients`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, name, age })
+                });
+                await getAllPatients();
+            } catch (error) {
+                console.error('Error updating patient:', error);
+                alert('Failed to update patient');
+            }
+        }
+
+        async function deletePatient() {
+            const id = document.getElementById('deletePatientId').value;
+
+            try {
+                await fetch(`${API_BASE}/patients/${id}`, {
+                    method: 'DELETE'
+                });
+                document.getElementById('deletePatientId').value = '';
+                await getAllPatients();
+            } catch (error) {
+                console.error('Error deleting patient:', error);
+                alert('Failed to delete patient');
+            }
+        }
+
+        async function createExam() {
+            const patient_id = parseInt(document.getElementById('createExamPatientId').value);
+            const reaction_time = parseFloat(document.getElementById('createExamReactionTime').value);
+            const pupil_dialation = parseFloat(document.getElementById('createExamPupilDialation').value);
+            const eye_velocity = parseFloat(document.getElementById('createExamEyeVelocity').value);
+
+            try {
+                await fetch(`${API_BASE}/exams`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        patient_id,
+                        reaction_time,
+                        pupil_dialation,
+                        eye_velocity
+                    })
+                });
+                ['PatientId', 'ReactionTime', 'PupilDialation', 'EyeVelocity'].forEach(field => {
+                    document.getElementById(`createExam${field}`).value = '';
+                });
+                await getAllExams();
+            } catch (error) {
+                console.error('Error creating exam:', error);
+                alert('Failed to create exam');
+            }
+        }
+
+        async function updateExam() {
+            const id = parseInt(document.getElementById('updateExamId').value);
+            const patient_id = parseInt(document.getElementById('updateExamPatientId').value);
+            const reaction_time = parseFloat(document.getElementById('updateExamReactionTime').value);
+            const pupil_dialation = parseFloat(document.getElementById('updateExamPupilDialation').value);
+            const eye_velocity = parseFloat(document.getElementById('updateExamEyeVelocity').value);
+
+            try {
+                await fetch(`${API_BASE}/exams`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id,
+                        patient_id,
+                        reaction_time,
+                        pupil_dialation,
+                        eye_velocity
+                    })
+                });
+                await getAllExams();
+            } catch (error) {
+                console.error('Error updating exam:', error);
+                alert('Failed to update exam');
+            }
+        }
+
+        async function deleteExam() {
+            const id = document.getElementById('deleteExamId').value;
+
+            await fetch(`${API_BASE}/exams/${id}`, {
+                method: 'DELETE'
+            });
+            refreshData();
+        }
+    </script>
+</body>
+
+</html>
