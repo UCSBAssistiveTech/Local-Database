@@ -1,3 +1,18 @@
+# tldr: how to run:
+- Download python3, Docker
+- Clone this repo
+- Move to the root directory
+- make a venv:  `python3 -m venv env`
+- do `source env/bin/activate` (this is different per OS, so search up what works for u)
+- `pip install -r requirements.txt` to install all the packages
+- run `docker compose up` (brings up localstack and a postgres thing)
+- run `python3 app/main.py`
+- if u want to seed the database run the seed script in app/test, but u can do CRUD operations through the UI
+- run the ui by opening up the html file at app/test/static/index.html
+
+If u are non unix operating system some commands will look different but u can find out what the equvialent is using google / ai 
+
+
 # LocalStack
 We're using localstack to simulate AWS infrastructure we may be using later. LocalStack emulates an AWS-like environment so we can practice creating these kinds of processes then apply them later.
 
